@@ -21,7 +21,7 @@ export interface Props {
 	metadata?: Metadata
 	xmlio: XMLio
 }
-export default class Entry extends React.Component<Props, State> {
+export default class Dispilio extends React.Component<Props, State> {
 	state: State = {
 		activeId: null,
 		dataNodeTree: null,
