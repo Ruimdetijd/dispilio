@@ -6,6 +6,12 @@ const index_components_1 = require("./index.components");
 const index_1 = require("./index");
 const Wrapper = styled_1.default.div `
 	margin-bottom: 2em;
+
+	ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
 `;
 const H2 = styled_1.default.h2 `
 	cursor: pointer;

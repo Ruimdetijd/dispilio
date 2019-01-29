@@ -11,12 +11,12 @@ class Facsimile extends React.PureComponent {
             this.osd.destroy();
     }
     render() {
-        return (React.createElement("div", { className: "facsimile" },
+        return (React.createElement("div", null,
             React.createElement("div", { id: "openseadragon", style: { height: '100%' } })));
     }
     init() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            if (!this.props.facsimilePaths.length)
+            if (this.props.facsimileExtractor == null)
                 return;
             const OpenSeaDragon = yield Promise.resolve().then(() => require('openseadragon'));
             if (this.osd == null) {
@@ -30,7 +30,8 @@ class Facsimile extends React.PureComponent {
                     visibilityRatio: 1.0,
                 });
             }
-            this.osd.open(this.props.facsimilePaths[0]);
+            const facsimilePaths = this.props.facsimileExtractor(this.props.xmlio);
+            this.osd.open(facsimilePaths[0]);
         });
     }
 }

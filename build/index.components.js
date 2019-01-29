@@ -7,6 +7,7 @@ exports.Main = styled_1.default.div `
 	display: grid;
 	grid-column-gap: 2%;
 	grid-template-columns: 83% 15%;
+	grid-template-rows: 100% auto;
 	height: 100%;
 `;
 exports.TextWrapper = styled_1.default.div `
@@ -20,8 +21,12 @@ exports.Layers = styled_1.default.div `
 	display: grid;
 	grid-column-gap: 2%;
 	${(props) => {
-    if (props.orientation === 0)
-        return 'grid-template-columns: 1fr 1fr;';
+    if (props.orientation === 0) {
+        return `
+				grid-template-columns: 1fr 1fr;
+				grid-template-rows: 100% auto;
+			`;
+    }
     if (props.orientation === 1)
         return 'grid-template-rows: 1fr 1fr;';
 }}

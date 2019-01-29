@@ -41,7 +41,7 @@ class Entry extends React.Component {
         const component = this.dataToComponent(this.state.dataNodeTree);
         return (React.createElement(index_components_1.Main, null,
             React.createElement(index_components_1.Layers, { orientation: this.state.orientation },
-                React.createElement(facsimile_1.default, { facsimilePaths: this.props.facsimilePaths }),
+                React.createElement(facsimile_1.default, { facsimileExtractor: this.props.facsimileExtractor, xmlio: this.props.xmlio }),
                 React.createElement(index_components_1.TextWrapper, null, component)),
             React.createElement("aside", null,
                 React.createElement("ul", null, this.props.metadata
@@ -54,7 +54,9 @@ class Entry extends React.Component {
         this.props.extractors.forEach(extractor => {
             const cache = new Map();
             this.props.xmlio.change(extractor.selector, (el) => {
-                const id = el.getAttribute(extractor.idAttribute);
+                const id = (extractor.idAttribute != null) ?
+                    el.getAttribute(extractor.idAttribute) :
+                    el.textContent;
                 const internalId = cache.has(id) ? cache.get(id) : utils_1.generateId(6);
                 cache.set(id, internalId);
                 el.setAttribute(exports.ID_ATTRIBUTE_NAME, internalId);
@@ -115,6 +117,7 @@ class Entry extends React.Component {
         if (root.children == null)
             root.children = [];
         const defaultAttributes = {
+            dataNodeName: root.name,
             activeId: this.state.activeId,
             key: index,
             onClick: (ev) => this.handleComponentClick(ev, root)
@@ -133,7 +136,6 @@ class Entry extends React.Component {
 Entry.defaultProps = {
     components: {},
     extractors: [],
-    facsimilePaths: [],
     metadata: []
 };
 exports.default = Entry;
