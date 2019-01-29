@@ -10,7 +10,7 @@ exports.COLOR_ATTRIBUTE_NAME = '__color';
 function Noop(props) {
     return props.children;
 }
-class Entry extends React.Component {
+class Dispilio extends React.Component {
     constructor() {
         super(...arguments);
         this.state = {
@@ -133,9 +133,9 @@ class Entry extends React.Component {
         return React.createElement(this.props.components[root.name], Object.assign({}, attributes, defaultAttributes), root.children.map((child, index) => this.dataToComponent(child, index)));
     }
 }
-Entry.defaultProps = {
+Dispilio.defaultProps = {
     components: {},
     extractors: [],
     metadata: []
 };
-exports.default = Entry;
+exports.default = Dispilio;
