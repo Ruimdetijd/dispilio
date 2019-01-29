@@ -4,6 +4,9 @@ npm i
 npm run build
 npm run dist
 
+cp dist/bundle.js docs/dispilio.js
+cp node_modules/xmlio/dist/bundle.js docs/xmlio.js
+
 echo -e "\n\n"
 read -p "Did you bump the version? (do it now, if you didn't! :))"
 next_version=$(node -pe 'require("./package.json").version')

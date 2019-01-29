@@ -12,7 +12,7 @@
     "watch": "rm -rf build && tsc -w"
   },
   "author": "",
-  "license": "ISC",
+  "license": "GPL-3.0-or-later",
   "dependencies": {
     "@emotion/core": "^10.0.5",
     "@emotion/styled": "^10.0.5",
@@ -24,7 +24,7 @@
     "react-dom": "^16.7.0",
     "react-emotion": "^10.0.0",
     "react-router-dom": "^4.3.1",
-    "xmlio": "^5.1.1"
+    "xmlio": "^5.1.2"
   },
   "devDependencies": {
     "@types/react": "^16.7.18",
