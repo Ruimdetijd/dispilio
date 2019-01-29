@@ -1,12 +1,15 @@
 {
-  "name": "nineveh",
+  "name": "dispilio",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "scripts": {
-    "start": "webpack-dev-server --mode=development",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rm -rf build && tsc",
+    "dist": "rm -rf dist && webpack && webpack --config webpack.config.prod.js",
+    "dist:watch": "rm -rf dist && webpack --watch",
+    "release": "./release.sh",
+    "watch": "rm -rf build && tsc -w"
   },
   "author": "",
   "license": "ISC",
@@ -21,7 +24,7 @@
     "react-dom": "^16.7.0",
     "react-emotion": "^10.0.0",
     "react-router-dom": "^4.3.1",
-    "xmlio": "^4.1.0"
+    "xmlio": "^5.1.0"
   },
   "devDependencies": {
     "@types/react": "^16.7.18",
@@ -31,7 +34,9 @@
     "css-loader": "^2.0.2",
     "monaco-editor-webpack-plugin": "^1.7.0",
     "style-loader": "^0.23.1",
+    "ts-loader": "^5.3.3",
     "typescript": "^3.2.2",
+    "uglifyjs-webpack-plugin": "^2.1.1",
     "webpack": "^4.28.2",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.12"

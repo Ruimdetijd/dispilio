@@ -1,0 +1,120 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>Dispilio</title>
+<style>
+	html, body, #container {
+		height: 100%;
+		margin: 0;
+		padding: 0;
+		width: 100%;
+	}
+	#container {
+		height: 100vh;
+	}
+	div.div {
+		margin-top: 2em;
+	}
+	div.head {
+		font-weight: bold;
+	}
+	div.rs {
+		border-bottom: 2px;
+		border-bottom-style: solid;
+		cursor: pointer;
+		display: inline;
+		padding: .05em .1em;
+	}
+	div.lb {
+		display: block;
+	}
+	div.lb:before {
+		box-sizing: border-box;
+		color: #444;
+		content: counter(linenumber);
+		counter-increment: linenumber;
+		font-size: .8em;
+		left: 0;
+		padding-right: .5em;
+		position: absolute;
+		text-align: right;
+		width: 2em;
+	}
+</style>
+<body>
+	<div id="container"></div>
+	<script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+	<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+	<script src="../node_modules/xmlio/dist/bundle.js"></script>
+	<script src="../dist/bundle.js"></script>
+	<script>
+		const extractors = [
+			{
+				color: 'blue',
+				id: 'persons',
+				idAttribute: 'key',
+				selector: 'rs[type="person"][key]',
+				title: 'Persons'
+			},
+			{
+				color: 'green',
+				id: 'ships',
+				idAttribute: 'key',
+				selector: 'rs[type="ship"][key]',
+				title: 'Ships'
+			},
+			{
+				color: 'purple',
+				id: 'places',
+				idAttribute: 'key',
+				selector: 'rs[type="place"][key]',
+				title: 'Places'
+			},
+			{
+				color: 'red',
+				id: 'weather',
+				selector: 'rs[type="weather"]',
+				title: 'Weather'
+			},
+			{
+				color: 'orange',
+				id: 'course',
+				selector: 'rs[type="course"]',
+				title: 'Course'
+			},
+			{
+				color: 'brown',
+				id: 'geo',
+				selector: 'geo',
+				title: 'Geo'
+			}
+		]
+
+		function handleXML() {
+			if (xhr.readyState === xhr.DONE && xhr.status === 200) {
+				const xmlio = new XMLio(xhr.responseXML.documentElement)
+				import('./components.js').then(mod => createDispilio(xmlio, mod.default))
+			}
+		}
+
+		function createDispilio(xmlio, components) {
+			const DispilioComponent = React.createElement(Dispilio.default, {
+				components,
+				extractors,
+				facsimileExtractor: function(xmlio) {
+					let nodes = xmlio.select('div[facs]').export({ type: 'data', deep: false })
+					if (!Array.isArray(nodes)) nodes = [nodes]
+					return nodes.map(node => node.attributes.facs.slice(2) + '.dzi')
+				},
+				xmlio,
+			})
+			ReactDOM.render(DispilioComponent, document.getElementById('container'))
+		}
+
+		const xhr = new XMLHttpRequest
+		xhr.open('GET', `./transcription.xml`)
+		xhr.responseType = 'document'
+		xhr.overrideMimeType('text/xml')
+		xhr.onload = handleXML
+		xhr.send()
+	</script>
+</body>

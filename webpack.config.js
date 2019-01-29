@@ -1,43 +1,25 @@
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-const path = require('path');
-
 module.exports = {
-	devServer: {
-		contentBase: path.resolve(__dirname),
-		disableHostCheck: true,
-		historyApiFallback: true,
-		port: 4000,
-		proxy: {
-			'/api': {
-				target: 'http://localhost:3377',
-				pathRewrite: {'^/api': ''}
-			}
-		}
+	entry: {
+		bundle: "./src/index.tsx",
 	},
-  entry: './src/index.tsx',
-  output: {
-		filename: 'bundle.js',
-		path: __dirname + '/build',
-		publicPath: '/build/',
-  },
-  module: {
-    rules: [
-			{
-				test: /\.css$/,
-				use: ['style-loader', 'css-loader']
-			},
-			// All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
-			{
-				test: /\.tsx?$/,
-				loader: "awesome-typescript-loader",
-			}
-		]
+	mode: 'development',
+	output: {
+		filename: "[name].js",
+		globalObject: 'this',
+		library: "Dispilio",
+		libraryTarget: "umd",
+		path: __dirname + "/dist",
+		publicPath: '/dist/',
 	},
 	resolve: {
-		// Add '.ts' and '.tsx' as resolvable extensions.
-		extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js"]
+		extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js", ".wasm"]
 	},
-  plugins: [
-    new MonacoWebpackPlugin()
-  ]
-};
+	module: {
+		rules: [
+			{
+				test: /\.tsx?$/,
+				loader: "ts-loader",
+			}
+		]
+	}
+}

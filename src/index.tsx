@@ -1,183 +1,223 @@
 import * as React from 'react'
-import * as ReactDOM from 'react-dom'
-import { BrowserRouter, Link, Route } from 'react-router-dom'
-import Entry from './entry'
-import Projects from './projects'
-import Project from './project'
-import { Project as ProjectModel, XMLData } from './models'
-import extractors from './entry/extractors'
-import XMLio from 'xmlio';
-import splitters from './project/splitters'
+import { MetadataItem, Layers, TextWrapper, Main } from './index.components'
+import ExtractedItems from './extracted-items'
+import XMLio from 'xmlio'
+import { generateId } from './utils'
+import Facsimile from './facsimile'
 
-function formatBytes(a: any) {
-	var c=1024,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(a)/Math.log(c));
-	const num = (a/Math.pow(c,f))
-	const d = num < 10 ? 1 : 0
-	return parseFloat(num.toFixed(d))+e[f]
+export const ID_ATTRIBUTE_NAME = '__id'
+export const COLOR_ATTRIBUTE_NAME = '__color'
+
+function Noop(props: any) {
+	return props.children
 }
 
-function fetchXml(slug: string, filename: string): Promise<XMLData> {
-	return new Promise((resolve, _reject) => {
-		var xhr = new XMLHttpRequest
-		xhr.open('GET', `/api/xml/${slug}/${filename}.xml`)
-		xhr.responseType = 'document'
-		xhr.overrideMimeType('text/xml')
+type DefaultProps = Pick<Props, 'components' | 'extractors' | 'metadata'>
 
-		xhr.onload = function() {
-			if (xhr.readyState === xhr.DONE && xhr.status === 200) {
-				const size = formatBytes(xhr.getResponseHeader('Content-length'))
-				const xmlio = new XMLio(xhr.responseXML.documentElement, { namespaces: ['af', 'md']})
-				resolve({ xmlio, size })
-			}
-		}
-
-		xhr.send()
-	})
-}
-
-export interface State {
-	projects: ProjectModel[]
-	project: ProjectModel
-	setEntry: (slug: string, xmlId: string, entryId: string) => void
-	setProject: (slug: string) => void
-	setProjects: () => void
-	setXml: (slug: string, filename: string) => void
+export interface Props {
+	components?: { [tagName: string]: any }
+	extractors?: Extractor[]
+	facsimileExtractor?: (xmlio: XMLio) => string[]
+	metadata?: Metadata
 	xmlio: XMLio
 }
-class App extends React.Component<{}, State> {
-	private async ensureProjects(): Promise<Pick<State, 'projects'>> {
-		const response = await fetch(`/api/projects`)
-		const projects = await response.json()
-		return { projects }
-	}
-
-	private async ensureProject(slug: string): Promise<Partial<State>> {
-		const nextState: Partial<State> = {}
-
-		if (!this.state.projects.length) {
-			const { projects } = await this.ensureProjects()
-			nextState.projects = projects
-		}
-
-		const projects = nextState.hasOwnProperty('projects') ? nextState.projects : this.state.projects
-		const project = projects.find(p => p.slug === slug)
-		if (project.xml != null) return project.slug === slug ? {} : { project }
-
-		const response = await fetch(`/api/projects/${slug}`)
-		const nextProject: ProjectModel = await response.json()
-		const partialState = this.updateProject(nextProject, {
-			entries: {},
-			extractors: extractors[project.slug],
-			splitter: splitters[project.slug],
-			xml: {}
-		})
-
-		return partialState
-	}
-
-	private async ensureXml(slug: string, filename: string): Promise<Partial<State>> {
-		const nextState = await this.ensureProject(slug)
-		const project = nextState.hasOwnProperty('project') ? nextState.project : this.state.project
-
-		if (project.xml.hasOwnProperty(filename)) {
-			const { xmlio } = project.xml[filename]
-			return (xmlio !== this.state.xmlio) ? { xmlio } : {}
-		}
-
-		const xmlData = await fetchXml(project.slug, filename)	
-		const xml = { ...project.xml, [filename]: xmlData }	
-
-		let entries = {}
-		if (splitters.hasOwnProperty(project.slug)) {
-			const splitted = splitters[project.slug](xmlData.xmlio) as Element[]
-			entries = { ...project.entries, [filename]: splitted.map(s => new XMLio(s)) }
-		}
-
-		const partialState = this.updateProject(project, { xml, entries })
-		return { ...partialState, xmlio: xmlData.xmlio }
-	}
-
+export default class Entry extends React.Component<Props, State> {
 	state: State = {
-		project: null,
-		projects: [],
-		setProjects: async () => {
-			const nextState = await this.ensureProjects()
-			this.setState(() => nextState)
-		},
-		setProject: async (slug: string) => {
-			const nextState = await this.ensureProject(slug) as State
-			this.setState(() => nextState)
-
-		},
-		setXml: async (slug: string, filename: string) => {
-			const nextState = await this.ensureXml(slug, filename) as State
-			this.setState(() => nextState)
-		},
-		setEntry: async (slug: string, filename: string, entryId: string) => {
-			const nextState = await this.ensureXml(slug, filename) as State
-			if (entryId != null) {
-				const project = nextState.hasOwnProperty('project') ? nextState.project : this.state.project
-				nextState.xmlio = project.entries[filename][parseInt(entryId, 10)]
-			}
-			this.setState(() => nextState)
-		},
-		xmlio: null
+		activeId: null,
+		dataNodeTree: null,
+		extractors: [],
+		input: null,
+		orientation: Orientation.Horizontal
 	}
 
-	private updateProject(prevProject: ProjectModel, props: Partial<ProjectModel>): Pick<State, 'project' | 'projects'> {
-		const project = { ...prevProject, ...props }	
-		const projects = this.state.projects
-			.filter(p => p.id !== project.id)
-			.concat(project)
-		return { project, projects }
+	static defaultProps: DefaultProps = {
+		components: {},
+		extractors: [],
+		metadata: []
+	}
+
+	componentDidMount() {
+		if (this.props.xmlio != null) this.init()
+	}
+
+	componentDidUpdate(prevProps: Props, _prevState: State) {
+		if (prevProps.xmlio !== this.props.xmlio) {
+			this.init()	
+		}
 	}
 
 	render() {
+		if (this.state.dataNodeTree == null) return null
+
+		const component = this.dataToComponent(this.state.dataNodeTree)
+		
 		return (
-			<BrowserRouter>
-				<>
-					<Link to="/projects">Projects</Link>
-					&nbsp;
+			<Main>
+				<Layers orientation={this.state.orientation}>
+					<Facsimile
+						facsimileExtractor={this.props.facsimileExtractor}
+						xmlio={this.props.xmlio}
+					/>
+					<TextWrapper>
+						{ component }
+					</TextWrapper>
+				</Layers>
+				<aside>
+					<ul>
+						{
+							this.props.metadata
+								.map(([key, value], index) => 
+									<MetadataItem key={key + index}>
+										<span>{key}</span>
+										<span>{value}</span>
+									</MetadataItem>
+								)
+						}	
+					</ul>
 					{
-						this.state.project != null &&
-						<Link to={`/projects/${this.state.project.slug}`}>{this.state.project.title}</Link>
+						this.state.extractors.map(extractor =>
+							<ExtractedItems
+								activeId={this.state.activeId}
+								extractor={extractor}
+								key={extractor.id}
+								onClick={this.setActiveId}
+							/>
+						)
 					}
-					<Route path="/projects" exact render={() =>
-						<Projects
-							{...this.state}
-						/>
-					} />
-					<Route path="/projects/:slug" exact render={props =>
-						<Project
-							{...props}
-							{...this.state}
-						/>
-					} />
-					<Route
-						exact
-						path="/projects/:projectSlug/xml/:xmlId"
-						render={this.renderEntry}
-					/>
-					<Route
-						path="/projects/:projectSlug/xml/:xmlId/entries/:entryId"
-						render={this.renderEntry}
-					/>
-				</>
-			</BrowserRouter>
+				</aside>
+			</Main>
 		)
 	}
 
-	private renderEntry = (props) => {
-		return (
-			<Entry
-				{...props}
-				{...this.state}
-			/>
+	private init() {
+		this.props.extractors.forEach(extractor => {
+			// Add a cache for used IDs. When a used ID is encountered,
+			// the same internal ID is used.
+			const cache = new Map()
+			this.props.xmlio.change(extractor.selector, (el: HTMLElement) => {
+				const id = (extractor.idAttribute != null) ?
+					el.getAttribute(extractor.idAttribute) :
+					el.textContent
+
+				// Create an internal ID, to match a component to a node (and vice versa).
+				// Ideally, extractor.idAttribute would be used, but this is not possible,
+				// because two IDs from different extractors could be the same, for example:
+				// "paris" for a person and a place
+				// TODO just use the ID (extractor.idAttribute) as an id, it is unique
+				const internalId = cache.has(id) ? cache.get(id) : generateId(6)
+				cache.set(id, internalId)
+				el.setAttribute(ID_ATTRIBUTE_NAME, internalId)
+				el.setAttribute(COLOR_ATTRIBUTE_NAME, extractor.color)
+				return el
+			})
+		})
+		this.props.xmlio.persist()
+
+		const extractors = this.props.extractors.map(extractor => {
+			// Select the nodes from the DOM
+			let nodes = this.props.xmlio
+				.select(extractor.selector)
+				// Only export deep if there is not an idAttribute. With an idAttribute,
+				// data is loaded from an external data source. Without the idAttribute,
+				// the node's content is shown
+				.export({ type: 'data', deep: extractor.idAttribute == null })
+
+			if (nodes == null) {
+				extractor.items = []
+				return extractor
+			}
+
+			if (!Array.isArray(nodes) && nodes.hasOwnProperty('name')) {
+				nodes = [nodes]
+			}
+
+			// Reduce the nodes to ExtractedItems
+			const mapValues = (nodes as DataNode[])
+				.reduce((prev, curr) => {
+					const value = extractor.idAttribute == null ?
+						curr.children.map(c => typeof c === 'string' ? c : '').join('') :
+						curr.attributes[extractor.idAttribute]
+
+					// If the ID attr does not exist on the Map, add it
+					if (!prev.has(value)) {
+						prev.set(value, {
+							count: 1,
+							node: curr,
+							id: value,
+						})
+					// If the ID attr does exist, update the count
+					} else {
+						const tmp = prev.get(value)
+						prev.set(value, {
+							...tmp,
+							count: tmp.count + 1,
+						})
+					}
+					return prev
+				}, new Map<string, ExtractedItem>())
+				.values()
+
+			// Change MapIterator to Array, and add array to map
+			extractor.items = Array.from(mapValues)
+
+			return extractor
+		})
+
+
+		const dataNodeTree = this.props.xmlio.exclude(['note']).export({ type: 'data' }) as DataNode
+
+		this.setState({ dataNodeTree, extractors })
+	}
+
+	private setActiveId = (activeId: string) => {
+		if (activeId === this.state.activeId) activeId = null
+		this.setState({ activeId })
+	}
+
+	private handleComponentClick(ev: MouseEvent, data: DataNode) {
+		ev.stopPropagation()
+		if (data.attributes.hasOwnProperty(ID_ATTRIBUTE_NAME)) {
+			this.setActiveId(data.attributes[ID_ATTRIBUTE_NAME])
+		}
+	}
+
+	private dataToComponent(root: DataNode, index?: number): any {
+		// If root is null or undefined, return null, which is a valid output for a React.Component
+		if (root == null) return null
+
+		// If root is a string, just return the string, which is a valid child for a React.Component
+		if (typeof root === 'string') return root
+
+		// If there is no predefined React.Component, use the Noop (no-op, no operation) Component,
+		// which just returns it's children
+		if (!this.props.components.hasOwnProperty(root.name)) this.props.components[root.name] = Noop
+
+		// If root does not have children, add an empty array, so it can be `map`ed
+		if (root.children == null) root.children = []
+
+		// Set the default attributes. React expects a key for siblings. Plus, some event handlers.
+		const defaultAttributes = {
+			dataNodeName: root.name,
+			activeId: this.state.activeId,
+			key: index,
+			onClick: (ev: MouseEvent) => this.handleComponentClick(ev, root)
+		}
+
+		// Prepare attributes. React does not accept all attribute names (ref, class, style)
+		const unacceptedAttributes = ['ref', 'class', 'style']
+		const attributes = { ...root.attributes }
+		unacceptedAttributes.forEach(un => {
+			if (attributes.hasOwnProperty(un)) {
+				attributes[`_${un}`] = attributes[un]
+				delete attributes[un]
+			}
+		})
+
+		// Create the React.Component
+		return React.createElement(
+			this.props.components[root.name], // Component class
+			{ ...attributes, ...defaultAttributes }, // Attributes
+			root.children.map((child, index) => this.dataToComponent(child, index)) // Children
 		)
 	}
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-	const container = document.getElementById('container')
-	ReactDOM.render(<App />, container)
-});

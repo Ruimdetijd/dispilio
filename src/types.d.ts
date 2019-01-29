@@ -1,8 +1,4 @@
-declare interface FormProps<T> {
-	change: (handlerProps: Partial<T>) => void
-	close: () => void
-	handler: T
-}
+declare module 'openseadragon'
 
 interface ExtractedItem {
 	count: number
@@ -10,20 +6,18 @@ interface ExtractedItem {
 	id: string
 }
 
-// type Extracted = {
-// 	items: ExtractedItem[]
-// 	id: string
-// }
 type Metadata = [string, string][]
 	
-interface ContextState {
+declare const enum Orientation {
+	Horizontal,
+	Vertical
+}
+interface State {
 	activeId: string
 	dataNodeTree: DataNode,
-	// extracted: Extracted
 	extractors: Extractor[]
 	input: string
-	metadata: Metadata
-	// xmlio: import('xmlio').default
+	orientation: Orientation
 }
 
 interface Extractor {

@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<TEI>
+	<teiHeader>
+		<facsimile>
+			<graphic url="1r.jpg" xml:id="f1r" />
+			<graphic url="1v.jpg" xml:id="f1v" />
+			<graphic url="2r.jpg" xml:id="f2r" />
+			<graphic url="2v.jpg" xml:id="f2v" />
+		</facsimile>
+	</teiHeader>
+	<text>
+		<pb facs="#f1r" />
+		<date when="1642-08" rend="underline">Aug. 1642</date>
+		<opener rend="right">Journael ofte beschrijvinge door mij Abel Jansz. Tasman van een voyagie gedaen van de stadt Batavia in Oost-Indien, aengaende de ontdeckinge van ´t ombekende Zuytlandt inde jare anno 1642. Den 14-en Augustij, Godt almachtich gelieve hiertoe zijnen Zeegen te geven, Amen.</opener>
+
+		<div type="section" when="1642-08-14" facs="#f1r" xml:id="s420814">
+			<head>Adij 14en</head>
+			<p>
+				<date when="1642-08">Augustij a[nn]o 1642</date> zijn met ons 2 scheepen van de reede Batavia onder zeyl gegaen, te weten <rs type="ship" key="heemskercq">´t jacht Heemskercq</rs> ende <rs type="ship" key="zeehaen">´t fluytschip de Zeehaen</rs>. De <rs type="weather">wint noortoost met goet weder</rs>. Op dato des avonts is de <rs type="ship" key="zeehaen">Zeehaen</rs> aen <rs type="place" key="eylandt-rotterdam">´t eylandt Rotterdam</rs> aen de gront geseylt, des nachts sonder merckelijcke schade daer weder affgeraeckt en[de] hebben ons tot vorderingh van de reyze na de <rs type="place" key="straet-zunda">Straet Zunda</rs> vervoecht.
+			</p>
+		</div>
+
+		<div type="section" when="1642-08-15" facs="#f1r" xml:id="s420815">
+			<head>Adij 15en</head>
+			<p>
+				d[it]o Tegens avont sijn bij de <rs type="person" key="sweers">H[ee]r Sweers</rs> gecomen, de op <rs type="ship" key="bredam">´t jacht Bredam</rs> was, daer uyt verstonden datter een quelpaert aen de hoecke van <rs type="place" key="bantam">Bantam</rs> ten anckere lach, dat uyt <rs type="place" key="republiek">´t vaderlandt</rs> gecomen is. ´s Nachts sijn voor anier ten ancker gecomen op 22 vadem, alswaer ons schip hebben opgeredt, alsoo ´t zelve soo ongereddert lach, dat ´t onmogelijck waer om mede in zee te gaen.
+			</p>
+		</div>
+		<div type="section" when="1642-08-16" facs="#f1r" xml:id="s420816">
+			<head>Adij 16en</head>
+			<p>d[it]o, De <rs type="weather">wint noch oost doorgaende coelte</rs>. De stroom gaet hart de <rs type="place" key="straet-zunda">Straet Sunda</rs> uyt. ´s Avonts met de landtwint lichten onse anckers ende gingen onder seyl. Setten onsen cours om tusschen de <rs type="place" key="prince-eylanden">Prince Eylanden</rs> en[de] <rs type="place" key="cracatouw">Cracatouw</rs> door te zeylen.</p>
+		</div>
+		<div type="section" when="1642-08-17" facs="#f1r" xml:id="s420817">
+			<head>Adij 17en</head>
+			<p>d[it]o Des morgens hadden de <rs type="place" key="prince-eylanden">Prince Eylanden</rs> zuytwest ende <rs type="place" key="cracatouw">Cracatouw</rs> noortwest ten noorden van ons. De <rs type="weather">wint zuytoost</rs> en[de] onze cours <rs type="course">zuytwest ten westen</rs>. ´s Middachs hadden het zuydelijck van de <rs type="place" key="prince-eylanden">Prince Eylanden</rs> oostzuytoost van ons 5 mijlen. Hadden de <geo>zuyderbreete van 6 graden 20 minuten langhte 124 gra</geo>. Na de middach in stilte gedreven. Ditto geresolveert dat van de <rs type="place" key="straet-zunda">Straet Zunda</rs> zullen 200 mijlen zuytwest ten westen aen zeylen tot op de zuyder breete van 14 graden, daer vandaen westzuytwest aen, tot op de zuyderbreete van 20 graden. Daer vandaen recht west aen tot het <rs type="place" key="mauritius">Eylant Mouritius</rs>.</p>
+		</div>
+
+		Adij 18en d[it]o
+
+
+		<pb facs="#f2v"/>
+		Septemb[e]r anno 1642
+
+		<div type="section" when="1642-09-02" facs="#f2v" xml:id="s420902">
+			<head>Adij 2en</head>
+			<p>
+				<lb/>d[itt]o. ´s Middachs gegiste <geo>breete 20 gra. 28 minuten, lenghte 89 gra. <lb/>29 minuten</geo>. De <rs type="weather">wint oostzuytoost met een doorgaende coelte ende <lb/>motregen, holle zee´s</rs>. Cours <rs type="course">behouden west</rs> geseylt 40 mijlen, <lb/>miswijsinge 20 graden noortwesteringe des naelts.
+			</p>
+		</div>
+
+		<div type="section" when="1642-09-03" facs="#f2v" xml:id="s420903">
+			<head>Adij 3en</head>
+			<p>
+				d[itt]o. ´s Middachs bevonden <geo>breete 20 graden 56 minuten, langhte 86 graden 56 minuten</geo>, de <rs type="weather">wint oost zuytoost topseyls coelte met goet weer</rs> cours <rs type="course">behouden west</rs> en[de] geseylt 36 mijlen.
+			</p>
+		</div>
+
+		<div type="section" when="1642-09-04" facs="#f2v" xml:id="s420904">
+			<head>Adij 4en</head>
+			<p>
+				d[itt]o. ´s Middacht gegiste breete <geo>19 gra. 55 minu. langhte 85 gra. 13 minuten</geo>, de <rs type="weather">wint oostelijck slappe topseyls coelte</rs>, cours <rs type="course">behouden west noortwest</rs> geseylt 26 mijlen, miswijsinge 22 graden 30 minuten ´s nachts d´ eerste wacht uyt zagen landt, hielden den geheelen nacht bij met cleyn zeyl.
+			</p>
+		</div>
+
+		<div type="section" when="1642-09-05" facs="#f2v" xml:id="s420905">
+			<head>Adij 5en</head>
+			<p>
+				d[itt]o. ´s Morgens zagen dat <rs type="place" key="mauritius">het eylandt Mauritius</rs> was, hielden er op dragenden ende sijn ontrent 9en ueren aldaer ten ancker gecomen, hadden de breete van <geo>20 gra. en lenghte 83 graden 48 minuten</geo> waren naer gissingh noch 50 mijlen beoosten <rs type="place" key="mauritius">´t eylandt Mouritius</rs> doen ´t zelve zagen.
+			</p>
+		</div>
+	</text>
+</TEI>
