@@ -15,7 +15,7 @@ export default class Facsimile extends React.PureComponent<Props> {
 
 	render() {
 		return (
-			<div className="facsimile">
+			<div>
 				<div id="openseadragon" style={{ height: '100%' }}></div>
 			</div>
 		)
