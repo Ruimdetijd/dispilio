@@ -12,13 +12,6 @@ declare const enum Orientation {
 	Horizontal,
 	Vertical
 }
-interface State {
-	activeId: string
-	dataNodeTree: DataNode,
-	extractors: Extractor[]
-	input: string
-	orientation: Orientation
-}
 
 interface Extractor {
 	color: string

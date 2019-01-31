@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const tslib_1 = require("tslib");
 const React = require("react");
 const index_components_1 = require("./index.components");
 const extracted_items_1 = require("./extracted-items");
@@ -18,7 +19,9 @@ class Dispilio extends React.Component {
             dataNodeTree: null,
             extractors: [],
             input: null,
-            orientation: 0
+            metadata: this.props.metadata,
+            orientation: 0,
+            xmlio: this.props.xmlio
         };
         this.setActiveId = (activeId) => {
             if (activeId === this.state.activeId)
@@ -27,8 +30,20 @@ class Dispilio extends React.Component {
         };
     }
     componentDidMount() {
-        if (this.props.xmlio != null)
-            this.init();
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            if (this.state.xmlio == null && this.props.url == null) {
+                console.error('Dispilio needs an `xmlio` or `url` prop');
+                return;
+            }
+            if (this.state.xmlio != null)
+                this.init();
+            else {
+                const xmlio = yield utils_1.fetchXML(this.props.url);
+                this.setState({ xmlio }, () => {
+                    this.init();
+                });
+            }
+        });
     }
     componentDidUpdate(prevProps, _prevState) {
         if (prevProps.xmlio !== this.props.xmlio) {
@@ -44,7 +59,7 @@ class Dispilio extends React.Component {
                 React.createElement(facsimile_1.default, { facsimileExtractor: this.props.facsimileExtractor, xmlio: this.props.xmlio }),
                 React.createElement(index_components_1.TextWrapper, null, component)),
             React.createElement("aside", null,
-                React.createElement("ul", null, this.props.metadata
+                React.createElement("ul", null, this.state.metadata
                     .map(([key, value], index) => React.createElement(index_components_1.MetadataItem, { key: key + index },
                     React.createElement("span", null, key),
                     React.createElement("span", null, value)))),
@@ -53,7 +68,7 @@ class Dispilio extends React.Component {
     init() {
         this.props.extractors.forEach(extractor => {
             const cache = new Map();
-            this.props.xmlio.change(extractor.selector, (el) => {
+            this.state.xmlio.change(extractor.selector, (el) => {
                 const id = (extractor.idAttribute != null) ?
                     el.getAttribute(extractor.idAttribute) :
                     el.textContent;
@@ -64,7 +79,7 @@ class Dispilio extends React.Component {
                 return el;
             });
         });
-        this.props.xmlio.persist();
+        this.state.xmlio.persist();
         const extractors = this.props.extractors.map(extractor => {
             let nodes = this.props.xmlio
                 .select(extractor.selector)
@@ -98,8 +113,12 @@ class Dispilio extends React.Component {
             extractor.items = Array.from(mapValues);
             return extractor;
         });
-        const dataNodeTree = this.props.xmlio.exclude(['note']).export({ type: 'data' });
-        this.setState({ dataNodeTree, extractors });
+        const dataNodeTree = this.state.xmlio.exclude(['note']).export({ type: 'data' });
+        const nextState = { dataNodeTree, extractors };
+        if (this.props.metadataExtractor != null) {
+            nextState.metadata = this.props.metadataExtractor(this.state.xmlio);
+        }
+        this.setState(nextState);
     }
     handleComponentClick(ev, data) {
         ev.stopPropagation();

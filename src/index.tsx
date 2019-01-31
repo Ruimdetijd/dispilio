@@ -2,7 +2,7 @@ import * as React from 'react'
 import { MetadataItem, Layers, TextWrapper, Main } from './index.components'
 import ExtractedItems from './extracted-items'
 import XMLio from 'xmlio'
-import { generateId } from './utils'
+import { generateId, fetchXML } from './utils'
 import Facsimile from './facsimile'
 
 export const ID_ATTRIBUTE_NAME = '__id'
@@ -18,7 +18,18 @@ export interface Props {
 	components?: { [tagName: string]: any }
 	extractors?: Extractor[]
 	facsimileExtractor?: (xmlio: XMLio) => string[]
+	metadataExtractor?: (xmlio: XMLio) => Metadata
 	metadata?: Metadata
+	url?: string
+	xmlio?: XMLio
+}
+interface State {
+	activeId: string
+	dataNodeTree: DataNode,
+	extractors: Extractor[]
+	input: string
+	metadata: Metadata
+	orientation: Orientation
 	xmlio: XMLio
 }
 export default class Dispilio extends React.Component<Props, State> {
@@ -27,7 +38,9 @@ export default class Dispilio extends React.Component<Props, State> {
 		dataNodeTree: null,
 		extractors: [],
 		input: null,
-		orientation: Orientation.Horizontal
+		metadata: this.props.metadata,
+		orientation: Orientation.Horizontal,
+		xmlio: this.props.xmlio
 	}
 
 	static defaultProps: DefaultProps = {
@@ -36,8 +49,18 @@ export default class Dispilio extends React.Component<Props, State> {
 		metadata: []
 	}
 
-	componentDidMount() {
-		if (this.props.xmlio != null) this.init()
+	async componentDidMount() {
+		if (this.state.xmlio == null && this.props.url == null) {
+			console.error('Dispilio needs an `xmlio` or `url` prop')
+			return
+		}
+		if (this.state.xmlio != null) this.init()
+		else {
+			const xmlio = await fetchXML(this.props.url)
+			this.setState({ xmlio }, () => {
+				this.init()
+			})
+		}
 	}
 
 	componentDidUpdate(prevProps: Props, _prevState: State) {
@@ -65,7 +88,7 @@ export default class Dispilio extends React.Component<Props, State> {
 				<aside>
 					<ul>
 						{
-							this.props.metadata
+							this.state.metadata
 								.map(([key, value], index) => 
 									<MetadataItem key={key + index}>
 										<span>{key}</span>
@@ -94,7 +117,7 @@ export default class Dispilio extends React.Component<Props, State> {
 			// Add a cache for used IDs. When a used ID is encountered,
 			// the same internal ID is used.
 			const cache = new Map()
-			this.props.xmlio.change(extractor.selector, (el: HTMLElement) => {
+			this.state.xmlio.change(extractor.selector, (el: HTMLElement) => {
 				const id = (extractor.idAttribute != null) ?
 					el.getAttribute(extractor.idAttribute) :
 					el.textContent
@@ -111,7 +134,7 @@ export default class Dispilio extends React.Component<Props, State> {
 				return el
 			})
 		})
-		this.props.xmlio.persist()
+		this.state.xmlio.persist()
 
 		const extractors = this.props.extractors.map(extractor => {
 			// Select the nodes from the DOM
@@ -164,9 +187,14 @@ export default class Dispilio extends React.Component<Props, State> {
 		})
 
 
-		const dataNodeTree = this.props.xmlio.exclude(['note']).export({ type: 'data' }) as DataNode
+		const dataNodeTree = this.state.xmlio.exclude(['note']).export({ type: 'data' }) as DataNode
+		const nextState: Partial<State> = { dataNodeTree, extractors }
 
-		this.setState({ dataNodeTree, extractors })
+		if (this.props.metadataExtractor != null) {
+			nextState.metadata = this.props.metadataExtractor(this.state.xmlio)
+		}
+
+		this.setState(nextState as State)
 	}
 
 	private setActiveId = (activeId: string) => {

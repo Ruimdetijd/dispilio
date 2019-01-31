@@ -9,13 +9,24 @@ export interface Props {
     };
     extractors?: Extractor[];
     facsimileExtractor?: (xmlio: XMLio) => string[];
+    metadataExtractor?: (xmlio: XMLio) => Metadata;
     metadata?: Metadata;
+    url?: string;
+    xmlio?: XMLio;
+}
+interface State {
+    activeId: string;
+    dataNodeTree: DataNode;
+    extractors: Extractor[];
+    input: string;
+    metadata: Metadata;
+    orientation: Orientation;
     xmlio: XMLio;
 }
 export default class Dispilio extends React.Component<Props, State> {
     state: State;
     static defaultProps: DefaultProps;
-    componentDidMount(): void;
+    componentDidMount(): Promise<void>;
     componentDidUpdate(prevProps: Props, _prevState: State): void;
     render(): JSX.Element;
     private init;

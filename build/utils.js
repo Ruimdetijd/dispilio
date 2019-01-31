@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const xmlio_1 = require("xmlio");
 function byteToHex(byte) {
     const hex = ('0' + byte.toString(16)).slice(-2);
     return hex;
@@ -12,3 +13,19 @@ function generateId(len) {
     return `${head}${tail}`;
 }
 exports.generateId = generateId;
+function fetchXML(url) {
+    return new Promise((resolve, _reject) => {
+        var xhr = new XMLHttpRequest;
+        xhr.open('GET', url);
+        xhr.responseType = 'document';
+        xhr.overrideMimeType('text/xml');
+        xhr.onload = function () {
+            if (xhr.readyState === xhr.DONE && xhr.status === 200) {
+                const xmlio = new xmlio_1.default(xhr.responseXML.documentElement);
+                resolve(xmlio);
+            }
+        };
+        xhr.send();
+    });
+}
+exports.fetchXML = fetchXML;

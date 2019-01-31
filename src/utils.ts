@@ -1,3 +1,5 @@
+import XMLio from 'xmlio'
+
 // str byteToHex(uint8 byte)
 //   converts a single byte to a hex string 
 function byteToHex(byte: number) {
@@ -13,4 +15,22 @@ export function generateId(len: number) {
 	const tail = [].map.call(arr, byteToHex).join("");
 	const head = String.fromCharCode(97 + Math.floor(Math.random() * 26))
 	return `${head}${tail}`
+}
+
+export function fetchXML(url: string): Promise<XMLio> {
+	return new Promise((resolve, _reject) => {
+		var xhr = new XMLHttpRequest
+		xhr.open('GET', url)
+		xhr.responseType = 'document'
+		xhr.overrideMimeType('text/xml')
+
+		xhr.onload = function() {
+			if (xhr.readyState === xhr.DONE && xhr.status === 200) {
+				const xmlio = new XMLio(xhr.responseXML.documentElement)
+				resolve(xmlio)
+			}
+		}
+
+		xhr.send()
+	})
 }
