@@ -8,7 +8,7 @@ import { TOP_OFFSET } from './components/aside';
 interface MainProps { asideVisible: boolean }
 export const Main = styled.div`
 	display: grid;
-	grid-template-columns: ${(props: MainProps) => props.asideVisible ? '80% 20%' : 'auto 60px'};
+	grid-template-columns: ${(props: MainProps) => props.asideVisible ? '80% 20%' : 'auto 64px'};
 `
 
 interface LayersProps {

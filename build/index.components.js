@@ -7,7 +7,7 @@ const index_1 = require("./index");
 const aside_1 = require("./components/aside");
 exports.Main = styled_1.default.div `
 	display: grid;
-	grid-template-columns: ${(props) => props.asideVisible ? '80% 20%' : 'auto 60px'};
+	grid-template-columns: ${(props) => props.asideVisible ? '80% 20%' : 'auto 64px'};
 `;
 exports.Layers = styled_1.default.div `
 	display: grid;

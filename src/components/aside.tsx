@@ -15,14 +15,17 @@ const Wrapper = styled.aside`
 	height: calc(100vh - ${TOP_OFFSET});
 	position: sticky;
 	top: ${TOP_OFFSET};
-	transition: transform 250ms;
 
+	${(props: HProps) => {
+		if (!props.visible) {
+			return `
+				position: fixed;
+				right: 0;
+				width: 64px;
+			`
+		}
+	}}
 `
-	// ${(props: WProps) => {
-		// if (!props.visible) return `
-		// 	transform: translateX(calc(100% - 64px));
-		// `
-	// }}
 
 interface HProps { visible: boolean }
 const Handle = styled.div`
@@ -63,7 +66,7 @@ interface Props {
 export default class Aside extends React.Component<MainProps & Props, State> {
 	render() {
 		return (
-			<Wrapper>
+			<Wrapper visible={this.props.asideVisible}>
 				<Handle
 					onClick={this.props.setVisible}
  					visible={this.props.asideVisible}

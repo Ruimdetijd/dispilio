@@ -14,8 +14,16 @@ const Wrapper = styled_1.default.aside `
 	height: calc(100vh - ${exports.TOP_OFFSET});
 	position: sticky;
 	top: ${exports.TOP_OFFSET};
-	transition: transform 250ms;
 
+	${(props) => {
+    if (!props.visible) {
+        return `
+				position: fixed;
+				right: 0;
+				width: 64px;
+			`;
+    }
+}}
 `;
 const Handle = styled_1.default.div `
 	background-color: #EEE;
@@ -46,7 +54,7 @@ const Body = styled_1.default.div `
 `;
 class Aside extends React.Component {
     render() {
-        return (React.createElement(Wrapper, null,
+        return (React.createElement(Wrapper, { visible: this.props.asideVisible },
             React.createElement(Handle, { onClick: this.props.setVisible, visible: this.props.asideVisible },
                 React.createElement("div", null, "\u2771")),
             React.createElement(Body, null,
