@@ -115,7 +115,7 @@ class Dispilio extends React.Component {
                                             1 : 0
                                     });
                                 }, orientation: this.state.orientation }))),
-                    React.createElement("div", { style: { display: 'grid', gridTemplateColumns: 'auto 480px auto', overflow: 'auto' } },
+                    React.createElement("div", { style: { display: 'grid', gridTemplateColumns: 'auto 480px auto' } },
                         React.createElement(index_components_1.Text, { hasLb: this.props.components.hasOwnProperty('lb'), hasFacs: this.props.facsimileExtractor != null, ref: this.textRef, wordwrap: this.state.wordwrap },
                             React.createElement("div", null, component))))),
             React.createElement(aside_1.default, Object.assign({}, this.state, { onClick: this.setActiveId, setVisible: () => this.setState({ asideVisible: !this.state.asideVisible }) }))));

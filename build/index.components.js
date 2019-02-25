@@ -20,29 +20,20 @@ exports.Layers = styled_1.default.div `
     }
     if (props.orientation === 1) {
         return `
-				grid-template-rows: 50% 50%;
-				height: calc(100vh - ${aside_1.TOP_OFFSET});
-
-				& > div:first-of-type {
-					grid-row: 2;
-				}
-				& > div:last-of-type {
-					grid-row: 1;
-				}
+				grid-template-columns: 100%;
+				grid-template-rows: calc((100vh - ${aside_1.TOP_OFFSET}) / 2) calc((100vh - ${aside_1.TOP_OFFSET}) / 2) auto;
 			`;
     }
 }}
 `;
 exports.TextWrapper = styled_1.default.div `
 	display: grid;
+	grid-column: ${(props) => props.orientation === 0 ? 2 : 1};
+	grid-row: ${(props) => props.orientation === 0 ? '1 / span 2' : '1 / span 3'};
 	grid-template-rows: 64px auto;
-	${(props) => {
-    if (props.orientation === 0) {
-        return `
-				padding: 0 32px 0 64px;
-			`;
-    }
-}}
+	${(props) => props.orientation === 0 ?
+    `padding: 0 32px 0 64px;` :
+    `padding-bottom: calc((100vh - ${aside_1.TOP_OFFSET}) / 2)`}
 `;
 exports.Menu = styled_1.default.div `
 	background-color: white;

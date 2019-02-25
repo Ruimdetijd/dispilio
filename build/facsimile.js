@@ -3,6 +3,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const React = require("react");
 const aside_1 = require("./components/aside");
+const styled_1 = require("@emotion/styled");
+const Wrapper = styled_1.default.div `
+	background: white;
+	position: sticky;
+	top: ${(props) => props.orientation === 0 ?
+    aside_1.TOP_OFFSET :
+    `calc((((100vh - ${aside_1.TOP_OFFSET}) / 2) + ${aside_1.TOP_OFFSET}))`};
+	height: ${(props) => props.orientation === 0 ?
+    `calc(100vh - ${aside_1.TOP_OFFSET})` :
+    `calc((100vh - ${aside_1.TOP_OFFSET}) / 2)`};
+	grid-column: 1;
+	grid-row: ${(props) => props.orientation === 0 ? 1 : 2};
+	z-index: 1;
+`;
 class Facsimile extends React.PureComponent {
     componentDidMount() {
         this.init();
@@ -17,10 +31,7 @@ class Facsimile extends React.PureComponent {
             this.osd.destroy();
     }
     render() {
-        const style = this.props.orientation === 0 ?
-            { position: 'sticky', top: aside_1.TOP_OFFSET, height: `calc(100vh - ${aside_1.TOP_OFFSET})` } :
-            {};
-        return (React.createElement("div", { style: style },
+        return (React.createElement(Wrapper, Object.assign({}, this.props),
             React.createElement("div", { id: "openseadragon", style: { height: '100%' } })));
     }
     init() {

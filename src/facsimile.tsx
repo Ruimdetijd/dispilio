@@ -1,8 +1,28 @@
 import * as React from 'react'
 import { State as EntryState } from './index'
 import { TOP_OFFSET } from './components/aside';
+import styled from '@emotion/styled';
 
 // TODO change facsimile when user scroll past a <pb />
+
+
+const Wrapper = styled.div`
+	background: white;
+	position: sticky;
+	top: ${(props: Props) =>
+		props.orientation === Orientation.Horizontal ?
+			TOP_OFFSET :
+			`calc((((100vh - ${TOP_OFFSET}) / 2) + ${TOP_OFFSET}))`
+	};
+	height: ${(props: Props) =>
+		props.orientation === Orientation.Horizontal ?
+			`calc(100vh - ${TOP_OFFSET})` :
+			`calc((100vh - ${TOP_OFFSET}) / 2)`
+	};
+	grid-column: 1;
+	grid-row: ${(props: Props) => props.orientation === Orientation.Horizontal ? 1 : 2};
+	z-index: 1;
+`
 
 type Props = Pick<EntryState, 'facsimiles' | 'orientation'>
 export default class Facsimile extends React.PureComponent<Props> {
@@ -23,14 +43,10 @@ export default class Facsimile extends React.PureComponent<Props> {
 	}
 
 	render() {
-		const style: React.CSSProperties = this.props.orientation === 0 ?
-			{ position: 'sticky', top: TOP_OFFSET, height: `calc(100vh - ${TOP_OFFSET})`} :
-			{}
-
 		return (
-			<div style={style}>
+			<Wrapper {...this.props}>
 				<div id="openseadragon" style={{ height: '100%' }}></div>
-			</div>
+			</Wrapper>
 		)
 	}
 

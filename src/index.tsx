@@ -193,7 +193,7 @@ export default class Dispilio extends React.Component<Props, State> {
 								/>
 							</div>
 						</Menu>
-						<div style={{ display: 'grid', gridTemplateColumns: 'auto 480px auto', overflow: 'auto' }}>
+						<div style={{ display: 'grid', gridTemplateColumns: 'auto 480px auto' }}>
 							<Text 
 								hasLb={this.props.components.hasOwnProperty('lb')}
 								hasFacs={this.props.facsimileExtractor != null}
