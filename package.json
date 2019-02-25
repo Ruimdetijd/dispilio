@@ -1,6 +1,6 @@
 {
   "name": "dispilio",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -24,7 +24,7 @@
     "react-dom": "^16.7.0",
     "react-emotion": "^10.0.0",
     "react-router-dom": "^4.3.1",
-    "xmlio": "^5.1.2"
+    "xmlio": "^5.3.1"
   },
   "devDependencies": {
     "@types/react": "^16.7.22",
