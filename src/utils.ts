@@ -18,7 +18,7 @@ export function generateId(len: number) {
 }
 
 export function fetchXML(url: string): Promise<XMLio> {
-	return new Promise((resolve, _reject) => {
+	return new Promise((resolve, reject) => {
 		var xhr = new XMLHttpRequest
 		xhr.open('GET', url)
 		xhr.responseType = 'document'
@@ -26,7 +26,11 @@ export function fetchXML(url: string): Promise<XMLio> {
 
 		xhr.onload = function() {
 			if (xhr.readyState === xhr.DONE && xhr.status === 200) {
-				const xmlio = new XMLio(xhr.responseXML.documentElement)
+				if (xhr.responseXML == null) {
+					reject('Fetching XML failed')
+					return
+				}
+				const xmlio = new XMLio(xhr.responseXML)
 				resolve(xmlio)
 			}
 		}

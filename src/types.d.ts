@@ -14,10 +14,27 @@ declare const enum Orientation {
 }
 
 interface Extractor {
-	color: string
+	// color: string
 	id: string
 	items?: ExtractedItem[]
 	idAttribute?: string
 	selector: string
-	title: string
+	title?: string
+}
+
+interface DispilioComponents {
+	[tagName: string]: (props: any) => JSX.Element
+}
+
+interface DispilioComponentProps {
+	key: number
+}
+
+interface ExtractorProps {
+	activeId: string
+	onClick: (ev: MouseEvent) => void
+}
+
+interface LbProps extends DispilioComponentProps {
+	wordwrap: boolean
 }

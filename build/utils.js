@@ -14,14 +14,18 @@ function generateId(len) {
 }
 exports.generateId = generateId;
 function fetchXML(url) {
-    return new Promise((resolve, _reject) => {
+    return new Promise((resolve, reject) => {
         var xhr = new XMLHttpRequest;
         xhr.open('GET', url);
         xhr.responseType = 'document';
         xhr.overrideMimeType('text/xml');
         xhr.onload = function () {
             if (xhr.readyState === xhr.DONE && xhr.status === 200) {
-                const xmlio = new xmlio_1.default(xhr.responseXML.documentElement);
+                if (xhr.responseXML == null) {
+                    reject('Fetching XML failed');
+                    return;
+                }
+                const xmlio = new xmlio_1.default(xhr.responseXML);
                 resolve(xmlio);
             }
         };
