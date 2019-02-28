@@ -33,7 +33,6 @@ export interface Props {
 export interface State {
     activeId: string;
     asideVisible: boolean;
-    dataNodeTree: DataNode;
     extractors: Extractor[];
     facsimiles: ExtractedFacsimile[];
     input: string;
@@ -56,6 +55,6 @@ export default class Dispilio extends React.Component<Props, State> {
     private handleComponentClick;
     private getComponentClass;
     private getAttributes;
-    private dataToComponent;
+    private DomToComponent;
 }
 export {};

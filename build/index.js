@@ -25,7 +25,6 @@ class Dispilio extends React.Component {
         this.state = {
             activeId: null,
             asideVisible: true,
-            dataNodeTree: null,
             extractors: [],
             facsimiles: [],
             input: null,
@@ -68,8 +67,7 @@ class Dispilio extends React.Component {
                 el.replaceWith(...el.childNodes);
             }
         }
-        if (this.props.highlight.length &&
-            this.state.dataNodeTree != null) {
+        if (this.props.highlight.length) {
             const treeWalker = document.createTreeWalker(this.textRef.current, NodeFilter.SHOW_TEXT);
             const map = new Map();
             const re = new RegExp(this.props.highlight.join('|'), 'gui');
@@ -97,9 +95,8 @@ class Dispilio extends React.Component {
         }
     }
     render() {
-        if (this.state.dataNodeTree == null)
-            return null;
-        const component = this.dataToComponent(this.state.dataNodeTree);
+        const xmlDoc = this.state.xmlio.export({ type: 'dom' });
+        const component = this.DomToComponent(xmlDoc.documentElement);
         return (React.createElement(index_components_1.Main, { asideVisible: this.state.asideVisible },
             React.createElement(index_components_1.Layers, { orientation: this.state.orientation },
                 React.createElement(facsimile_1.default, { facsimiles: this.state.facsimiles, orientation: this.state.orientation }),
@@ -178,17 +175,14 @@ class Dispilio extends React.Component {
             extractor.items = Array.from(mapValues);
             return extractor;
         });
-        nextState.dataNodeTree = this.state.xmlio.exclude(['note']).export({ type: 'data' });
         if (this.props.metadataExtractor != null) {
             nextState.metadata = this.props.metadataExtractor(this.state.xmlio);
         }
         this.setState(nextState);
     }
-    handleComponentClick(ev, data) {
+    handleComponentClick(ev, id) {
         ev.stopPropagation();
-        if (data.attributes.hasOwnProperty(exports.ID_ATTRIBUTE_NAME)) {
-            this.setActiveId(data.attributes[exports.ID_ATTRIBUTE_NAME]);
-        }
+        this.setActiveId(id);
     }
     getComponentClass(tagName) {
         return (this.props.components.hasOwnProperty(tagName)) ?
@@ -197,37 +191,42 @@ class Dispilio extends React.Component {
     }
     getAttributes(node, index) {
         const unacceptedAttributes = ['ref', 'class', 'style'];
-        const nodeAttributes = Object.assign({}, node.attributes);
-        unacceptedAttributes.forEach(un => {
-            if (nodeAttributes.hasOwnProperty(un)) {
-                nodeAttributes[`_${un}`] = nodeAttributes[un];
-                delete nodeAttributes[un];
+        unacceptedAttributes.forEach(attr => {
+            if (node.hasAttribute(attr)) {
+                node.setAttribute(`_${attr}`, node.getAttribute(attr));
+                node.removeAttribute(attr);
             }
         });
         let componentProps;
         componentProps = {
             key: index,
         };
-        if (node.attributes.hasOwnProperty(exports.ID_ATTRIBUTE_NAME)) {
-            componentProps = Object.assign({}, componentProps, { activeId: this.state.activeId, onClick: (ev) => this.handleComponentClick(ev, node) });
+        if (node.hasAttribute(exports.ID_ATTRIBUTE_NAME)) {
+            componentProps = Object.assign({}, componentProps, { activeId: this.state.activeId, onClick: (ev) => this.handleComponentClick(ev, node.getAttribute(exports.ID_ATTRIBUTE_NAME)) });
         }
-        if (node.attributes.hasOwnProperty(exports.FACSTHUMB_ATTRIBUTE_NAME)) {
+        if (node.hasAttribute(exports.FACSTHUMB_ATTRIBUTE_NAME)) {
             componentProps = Object.assign({}, componentProps, { extractedFacsimileData: this.extractedFacsimileData, setState: (nextState) => this.setState(nextState), state: this.state });
         }
-        if (node.name === 'lb') {
+        if (node.nodeName === 'lb') {
             componentProps = Object.assign({}, componentProps, { wordwrap: this.state.wordwrap });
+        }
+        const nodeAttributes = {};
+        for (const attr of node.attributes) {
+            nodeAttributes[attr.name] = attr.value;
         }
         return Object.assign({}, nodeAttributes, componentProps);
     }
-    dataToComponent(root, index) {
+    DomToComponent(root, index) {
         if (root == null)
             return null;
-        if (typeof root === 'string')
-            return root;
-        const children = (root.children != null) ?
-            root.children.map((child, index) => this.dataToComponent(child, index)) :
+        if (root.nodeType === 3)
+            return root.textContent;
+        if (root.nodeType !== 1)
+            return null;
+        const children = root.childElementCount ?
+            Array.from(root.childNodes).map((child, index) => this.DomToComponent(child, index)) :
             [];
-        return React.createElement(this.getComponentClass(root.name), this.getAttributes(root, index), children);
+        return React.createElement(this.getComponentClass(root.nodeName), this.getAttributes(root, index), children);
     }
 }
 Dispilio.defaultProps = {

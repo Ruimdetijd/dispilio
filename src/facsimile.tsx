@@ -34,7 +34,8 @@ export default class Facsimile extends React.PureComponent<Props> {
 
 	componentDidUpdate(prevProps: Props) {
 		if (prevProps.facsimiles !== this.props.facsimiles) {
-			this.osd.open(this.props.facsimiles.map(f => f.path))
+			if (this.osd) this.osd.open(this.props.facsimiles.map(f => f.path))
+			else this.init()
 		}
 	}
 

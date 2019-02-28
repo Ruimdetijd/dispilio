@@ -56,7 +56,7 @@ export interface Props {
 export interface State {
 	activeId: string
 	asideVisible: boolean
-	dataNodeTree: DataNode,
+	// dataNodeTree: DataNode,
 	extractors: Extractor[]
 	facsimiles: ExtractedFacsimile[]
 	input: string
@@ -72,7 +72,7 @@ export default class Dispilio extends React.Component<Props, State> {
 	state: State = {
 		activeId: null,
 		asideVisible: true,
-		dataNodeTree: null,
+		// dataNodeTree: null,
 		extractors: [],
 		facsimiles: [],
 		input: null,
@@ -123,8 +123,8 @@ export default class Dispilio extends React.Component<Props, State> {
 
 		// TODO fix too much rerenders
 		if (
-			this.props.highlight.length &&
-			this.state.dataNodeTree != null // &&
+			this.props.highlight.length //&&
+			// this.state.dataNodeTree != null // &&
 			// _prevState.dataNodeTree !== this.state.dataNodeTree
 		) {
 			const treeWalker = document.createTreeWalker(this.textRef.current, NodeFilter.SHOW_TEXT)
@@ -159,8 +159,8 @@ export default class Dispilio extends React.Component<Props, State> {
 	}
 
 	render() {
-		if (this.state.dataNodeTree == null) return null
-		const component = this.dataToComponent(this.state.dataNodeTree)
+		const xmlDoc = this.state.xmlio.export({ type: 'dom' }) as XMLDocument
+		const component = this.DomToComponent(xmlDoc.documentElement)
 
 		return (
 			<Main asideVisible={this.state.asideVisible}>
@@ -322,7 +322,7 @@ export default class Dispilio extends React.Component<Props, State> {
 		})
 
 
-		nextState.dataNodeTree = this.state.xmlio.exclude(['note']).export({ type: 'data' }) as DataNode
+		// nextState.dataNodeTree = this.state.xmlio.exclude(['note']).export({ type: 'data' }) as DataNode
 
 		if (this.props.metadataExtractor != null) {
 			nextState.metadata = this.props.metadataExtractor(this.state.xmlio)
@@ -336,11 +336,9 @@ export default class Dispilio extends React.Component<Props, State> {
 		this.setState({ activeId })
 	}
 
-	private handleComponentClick(ev: MouseEvent, data: DataNode) {
+	private handleComponentClick(ev: MouseEvent, id: string) {
 		ev.stopPropagation()
-		if (data.attributes.hasOwnProperty(ID_ATTRIBUTE_NAME)) {
-			this.setActiveId(data.attributes[ID_ATTRIBUTE_NAME])
-		}
+		this.setActiveId(id)
 	}
 
 	private getComponentClass(tagName: string) {
@@ -349,14 +347,13 @@ export default class Dispilio extends React.Component<Props, State> {
 			Noop
 	}
 
-	private getAttributes(node: DataNode, index: number) {
+	private getAttributes(node: Element, index: number) {
 		// Prepare attributes. React does not accept all attribute names (ref, class, style)
 		const unacceptedAttributes = ['ref', 'class', 'style']
-		const nodeAttributes = { ...node.attributes }
-		unacceptedAttributes.forEach(un => {
-			if (nodeAttributes.hasOwnProperty(un)) {
-				nodeAttributes[`_${un}`] = nodeAttributes[un]
-				delete nodeAttributes[un]
+		unacceptedAttributes.forEach(attr => {
+			if (node.hasAttribute(attr)) {
+				node.setAttribute(`_${attr}`, node.getAttribute(attr))
+				node.removeAttribute(attr)
 			}
 		})
 
@@ -366,15 +363,15 @@ export default class Dispilio extends React.Component<Props, State> {
 			key: index,
 		}
 
-		if (node.attributes.hasOwnProperty(ID_ATTRIBUTE_NAME)) {
+		if (node.hasAttribute(ID_ATTRIBUTE_NAME)) {
 			componentProps = {
 				...componentProps,
 				activeId: this.state.activeId,
-				onClick: (ev: MouseEvent) => this.handleComponentClick(ev, node)
+				onClick: (ev: MouseEvent) => this.handleComponentClick(ev, node.getAttribute(ID_ATTRIBUTE_NAME))
 			} as ExtractorProps
 		}
 
-		if (node.attributes.hasOwnProperty(FACSTHUMB_ATTRIBUTE_NAME)) {
+		if (node.hasAttribute(FACSTHUMB_ATTRIBUTE_NAME)) {
 			componentProps = {
 				...componentProps,
 				extractedFacsimileData: this.extractedFacsimileData,
@@ -383,35 +380,64 @@ export default class Dispilio extends React.Component<Props, State> {
 			} as FacsThumbProps
 		}
 
-		if (node.name === 'lb') {
+		if (node.nodeName === 'lb') {
 			componentProps = {
 				...componentProps,
 				wordwrap: this.state.wordwrap
 			} as LbProps
 		}
 
+		// Convert NamedNodeMap to Object
+		const nodeAttributes: { [key: string]: string } = {}
+		for (const attr of node.attributes) {
+			nodeAttributes[attr.name] = attr.value
+		}
+
 		return { ...nodeAttributes, ...componentProps }
 	}
 
-	private dataToComponent(root: DataNode, index?: number): any {
+	private DomToComponent(root: Node, index?: number): any {
 		// If root is null or undefined, return null, which is a valid output for a React.Component
 		if (root == null) return null
 
-		// If root is a string, just return the string, which is a valid child for a React.Component
-		if (typeof root === 'string') return root
+		// If root is a text node, just return the text content, which is a valid child for a React.Component
+		if (root.nodeType === 3) return root.textContent
+
+		// Only process Elements after this
+		if (root.nodeType !== 1) return null
 
 		// Map children to component
-		const children = (root.children != null) ?
-			root.children.map((child, index) => this.dataToComponent(child, index)) :
+		const children = (root as Element).childElementCount ?
+			Array.from(root.childNodes).map((child, index) => this.DomToComponent(child, index)) :
 			[]
+
 
 		// Create the React.Component
 		return React.createElement(
-			this.getComponentClass(root.name),
-			this.getAttributes(root, index),
-			// this.props.components[root.name], // Component class
-			// { ...attributes, ...defaultAttributes }, // Attributes
+			this.getComponentClass(root.nodeName),
+			this.getAttributes(root as Element, index),
 			children
 		)
 	}
+	// private dataToComponent(root: DataNode, index?: number): any {
+	// 	// If root is null or undefined, return null, which is a valid output for a React.Component
+	// 	if (root == null) return null
+
+	// 	// If root is a string, just return the string, which is a valid child for a React.Component
+	// 	if (typeof root === 'string') return root
+
+	// 	// Map children to component
+	// 	const children = (root.children != null) ?
+	// 		root.children.map((child, index) => this.dataToComponent(child, index)) :
+	// 		[]
+
+	// 	// Create the React.Component
+	// 	return React.createElement(
+	// 		this.getComponentClass(root.name),
+	// 		this.getAttributes(root, index),
+	// 		// this.props.components[root.name], // Component class
+	// 		// { ...attributes, ...defaultAttributes }, // Attributes
+	// 		children
+	// 	)
+	// }
 }
