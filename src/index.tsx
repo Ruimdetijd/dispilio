@@ -214,6 +214,7 @@ export default class Dispilio extends React.Component<Props, State> {
 		)
 	}
 
+	// TODO move much of the init process to preprocessing
 	private init() {
 		const nextState: Partial<State> = {}
 
@@ -341,10 +342,13 @@ export default class Dispilio extends React.Component<Props, State> {
 		this.setActiveId(id)
 	}
 
-	private getComponentClass(tagName: string) {
-		return (this.props.components.hasOwnProperty(tagName)) ?
-			this.props.components[tagName] :
-			Noop
+	private getComponentClass(el: Element) {
+		const selector = Object.keys(this.props.components).find(selector => el.matches(selector))
+		if (selector == null) return Noop
+		return this.props.components[selector]
+		// return (this.props.components.hasOwnProperty(tagName)) ?
+		// 	this.props.components[tagName] :
+		// 	Noop
 	}
 
 	private getAttributes(node: Element, index: number) {
@@ -407,14 +411,12 @@ export default class Dispilio extends React.Component<Props, State> {
 		if (root.nodeType !== 1) return null
 
 		// Map children to component
-		const children = (root as Element).childElementCount ?
-			Array.from(root.childNodes).map((child, index) => this.DomToComponent(child, index)) :
-			[]
-
+		const childNodes = Array.from(root.childNodes)
+		const children = childNodes.map((child, index) => this.DomToComponent(child, index))
 
 		// Create the React.Component
 		return React.createElement(
-			this.getComponentClass(root.nodeName),
+			this.getComponentClass(root as Element),
 			this.getAttributes(root as Element, index),
 			children
 		)

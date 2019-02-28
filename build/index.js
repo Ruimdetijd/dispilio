@@ -184,10 +184,11 @@ class Dispilio extends React.Component {
         ev.stopPropagation();
         this.setActiveId(id);
     }
-    getComponentClass(tagName) {
-        return (this.props.components.hasOwnProperty(tagName)) ?
-            this.props.components[tagName] :
-            Noop;
+    getComponentClass(el) {
+        const selector = Object.keys(this.props.components).find(selector => el.matches(selector));
+        if (selector == null)
+            return Noop;
+        return this.props.components[selector];
     }
     getAttributes(node, index) {
         const unacceptedAttributes = ['ref', 'class', 'style'];
@@ -223,10 +224,9 @@ class Dispilio extends React.Component {
             return root.textContent;
         if (root.nodeType !== 1)
             return null;
-        const children = root.childElementCount ?
-            Array.from(root.childNodes).map((child, index) => this.DomToComponent(child, index)) :
-            [];
-        return React.createElement(this.getComponentClass(root.nodeName), this.getAttributes(root, index), children);
+        const childNodes = Array.from(root.childNodes);
+        const children = childNodes.map((child, index) => this.DomToComponent(child, index));
+        return React.createElement(this.getComponentClass(root), this.getAttributes(root, index), children);
     }
 }
 Dispilio.defaultProps = {
