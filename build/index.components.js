@@ -61,7 +61,7 @@ exports.Menu = styled_1.default.div `
 `;
 exports.Text = styled_1.default.div `
 	color: #222;
-	counter-reset: linenumber;
+	counter-reset: linenumber notenumber;
 	font-family: 'Merriweather', serif;
 	font-size: 1.1rem;
 	grid-column: 2;

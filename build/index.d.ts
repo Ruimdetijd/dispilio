@@ -55,6 +55,6 @@ export default class Dispilio extends React.Component<Props, State> {
     private handleComponentClick;
     private getComponentClass;
     private getAttributes;
-    private DomToComponent;
+    private domToComponent;
 }
 export {};

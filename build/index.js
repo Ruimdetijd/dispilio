@@ -96,7 +96,7 @@ class Dispilio extends React.Component {
     }
     render() {
         const xmlDoc = this.state.xmlio.export({ type: 'dom' });
-        const component = this.DomToComponent(xmlDoc.documentElement);
+        const component = this.domToComponent(xmlDoc.documentElement);
         return (React.createElement(index_components_1.Main, { asideVisible: this.state.asideVisible },
             React.createElement(index_components_1.Layers, { orientation: this.state.orientation },
                 React.createElement(facsimile_1.default, { facsimiles: this.state.facsimiles, orientation: this.state.orientation }),
@@ -217,7 +217,7 @@ class Dispilio extends React.Component {
         }
         return Object.assign({}, nodeAttributes, componentProps);
     }
-    DomToComponent(root, index) {
+    domToComponent(root, index) {
         if (root == null)
             return null;
         if (root.nodeType === 3)
@@ -225,7 +225,7 @@ class Dispilio extends React.Component {
         if (root.nodeType !== 1)
             return null;
         const childNodes = Array.from(root.childNodes);
-        const children = childNodes.map((child, index) => this.DomToComponent(child, index));
+        const children = childNodes.map((child, index) => this.domToComponent(child, index));
         return React.createElement(this.getComponentClass(root), this.getAttributes(root, index), children);
     }
 }

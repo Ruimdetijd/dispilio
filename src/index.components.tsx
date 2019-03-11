@@ -78,7 +78,7 @@ interface TextProps {
 }
 export const Text = styled.div`
 	color: #222;
-	counter-reset: linenumber;
+	counter-reset: linenumber notenumber;
 	font-family: 'Merriweather', serif;
 	font-size: 1.1rem;
 	grid-column: 2;

@@ -160,7 +160,7 @@ export default class Dispilio extends React.Component<Props, State> {
 
 	render() {
 		const xmlDoc = this.state.xmlio.export({ type: 'dom' }) as XMLDocument
-		const component = this.DomToComponent(xmlDoc.documentElement)
+		const component = this.domToComponent(xmlDoc.documentElement)
 
 		return (
 			<Main asideVisible={this.state.asideVisible}>
@@ -400,7 +400,7 @@ export default class Dispilio extends React.Component<Props, State> {
 		return { ...nodeAttributes, ...componentProps }
 	}
 
-	private DomToComponent(root: Node, index?: number): any {
+	private domToComponent(root: Node, index?: number): any {
 		// If root is null or undefined, return null, which is a valid output for a React.Component
 		if (root == null) return null
 
@@ -412,7 +412,7 @@ export default class Dispilio extends React.Component<Props, State> {
 
 		// Map children to component
 		const childNodes = Array.from(root.childNodes)
-		const children = childNodes.map((child, index) => this.DomToComponent(child, index))
+		const children = childNodes.map((child, index) => this.domToComponent(child, index))
 
 		// Create the React.Component
 		return React.createElement(
@@ -421,25 +421,4 @@ export default class Dispilio extends React.Component<Props, State> {
 			children
 		)
 	}
-	// private dataToComponent(root: DataNode, index?: number): any {
-	// 	// If root is null or undefined, return null, which is a valid output for a React.Component
-	// 	if (root == null) return null
-
-	// 	// If root is a string, just return the string, which is a valid child for a React.Component
-	// 	if (typeof root === 'string') return root
-
-	// 	// Map children to component
-	// 	const children = (root.children != null) ?
-	// 		root.children.map((child, index) => this.dataToComponent(child, index)) :
-	// 		[]
-
-	// 	// Create the React.Component
-	// 	return React.createElement(
-	// 		this.getComponentClass(root.name),
-	// 		this.getAttributes(root, index),
-	// 		// this.props.components[root.name], // Component class
-	// 		// { ...attributes, ...defaultAttributes }, // Attributes
-	// 		children
-	// 	)
-	// }
 }
