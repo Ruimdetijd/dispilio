@@ -6,7 +6,7 @@ interface ExtractedItem {
 	id: string
 }
 
-type Metadata = [string, string][]
+// type Metadata = [string, string][]
 	
 declare const enum Orientation {
 	Horizontal,
